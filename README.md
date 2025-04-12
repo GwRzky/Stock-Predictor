@@ -14,7 +14,7 @@ This Flask application combines real-time market data with news and uses OpenAI'
 
 1. Clone the repository:
    ```
-   git clone <repository-url>
+   git clone https://github.com/GustyCube/Stock-Predictor.git
    cd market-analysis-app
    ```
 
