@@ -1,0 +1,381 @@
+{% extends "base.html" %}
+
+{% block title %}Market Analysis{% endblock %}
+
+{% block content %}
+<!-- Loading Overlay -->
+
+
+<h1 class="mb-4">AI-Powered Market Analysis</h1>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Analysis Settings</h5>
+            </div>
+            <div class="card-body">
+            <form method="get" id="analysis-form">
+                <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                    <label for="topic" class="form-label">News Topics to Include</label>
+                    <input type="text" class="form-control" id="topic" name="topic" value="{{ topic if topic else 'market finance economy stocks index crypto' }}">
+                    <div class="form-text">Keywords to search for in the news (e.g., market, finance, economy, stocks, crypto)</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                    <label for="analysis_type" class="form-label">Analysis Type</label>
+                    <select class="form-select" id="analysis_type" name="analysis_type">
+                        <option value="general" {% if analysis_type == 'general' %}selected{% endif %}>General Market Overview</option>
+                        <option value="short_term" {% if analysis_type == 'short_term' %}selected{% endif %}>Short-Term Forecast (1-4 weeks)</option>
+                        <option value="long_term" {% if analysis_type == 'long_term' %}selected{% endif %}>Long-Term Outlook (3-12 months)</option>
+                    </select>
+                    <div class="form-text">Select the type of market analysis you need</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                    <label for="budget" class="form-label">Budget</label>
+                    <input type="number" class="form-control" id="budget" name="budget" value="{{ budget if budget else 1000 }}" min="0" step="0.01">
+                    <div class="form-text">Enter your budget for investment</div>
+                    </div>
+                </div>
+                </div>
+                <input type="hidden" name="generate" value="true">
+                <button type="submit" class="btn btn-primary" name="generate" value="true" id="generate-btn">Generate Analysis</button>
+            </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if analysis and 'error' not in analysis and generate %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card mb-4">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">Executive Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="analysis-content">
+                    {{ analysis.summary|nl2br|safe }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Index Recommendations</h5>
+            </div>
+            <div class="card-body">
+                <div class="analysis-content">
+                    {{ analysis.index_recommendations|nl2br|safe }}
+                </div>
+                <table class="table table-striped mt-3">
+                    <thead>
+                        <tr>
+                            <th>Index</th>
+                            <th>Price</th>
+                            <th>Change (%)</th>
+                            <th>Trend</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for index in analysis.market_indices %}
+                        <tr>
+                            <td>{{ index.name }}</td>
+                            <td>${{ "%.2f"|format(index.current_price) if index.current_price else 'N/A' }}</td>
+                            <td class="{{ 'text-success' if index.change_percent > 0 else 'text-danger' }}">
+                                {{ "%.2f"|format(index.change_percent) }}%
+                            </td>
+                            <td>
+                                {% if index.trend == 'up' %}
+                                <span class="text-success">↗</span>
+                                {% else %}
+                                <span class="text-danger">↘</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <canvas id="indexChart" width="400" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Crypto Recommendations</h5>
+            </div>
+            <div class="card-body">
+                <div class="analysis-content">
+                    {{ analysis.crypto_recommendations|nl2br|safe }}
+                </div>
+                <table class="table table-striped mt-3">
+                    <thead>
+                        <tr>
+                            <th>Crypto</th>
+                            <th>Price</th>
+                            <th>Change (%)</th>
+                            <th>Trend</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for crypto in analysis.cryptocurrencies %}
+                        <tr>
+                            <td>{{ crypto.name }}</td>
+                            <td>${{ "%.2f"|format(crypto.current_price) if crypto.current_price else 'N/A' }}</td>
+                            <td class="{{ 'text-success' if crypto.change_percent > 0 else 'text-danger' }}">
+                                {{ "%.2f"|format(crypto.change_percent) }}%
+                            </td>
+                            <td>
+                                {% if crypto.trend == 'up' %}
+                                <span class="text-success">↗</span>
+                                {% else %}
+                                <span class="text-danger">↘</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <canvas id="cryptoChart" width="400" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">Market Risks & Opportunities</h5>
+            </div>
+            <div class="card-body">
+                <div class="analysis-content">
+                    {{ analysis.risks_opportunities|nl2br|safe }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">Recommended Investment Strategy</h5>
+            </div>
+            <div class="card-body">
+                <div class="analysis-content">
+                    {{ analysis.investment_strategy|nl2br|safe }}
+                </div>
+                {% set referenced = [] %}
+                {% for item in analysis.market_indices + analysis.cryptocurrencies %}
+                    {% if '(' ~ item.symbol|upper|trim ~ ')' in analysis.investment_strategy.upper() %}
+                        {% set _ = referenced.append(item) %}
+                    {% endif %}
+                {% endfor %}
+                {% if referenced %}
+                <hr>
+                <h6>Referenced Symbols:</h6>
+                <table class="table table-striped mt-3">
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th>Current Price</th>
+                            <th>Change (%)</th>
+                            <th>Trend</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in referenced %}
+                        <tr>
+                            <td>{{ item.symbol }}</td>
+                            <td>${{ "%.2f"|format(item.current_price) if item.current_price else 'N/A' }}</td>
+                            <td class="{{ 'text-success' if item.change_percent > 0 else 'text-danger' }}">
+                                {{ "%.2f"|format(item.change_percent) }}%
+                            </td>
+                            <td>
+                                {% if item.trend == 'up' %}
+                                <span class="text-success">↗</span>
+                                {% else %}
+                                <span class="text-danger">↘</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">News Considered in Analysis</h5>
+            </div>
+            <div class="card-body">
+                {% if news_data and news_data.articles %}
+                    <ul class="list-group">
+                    {% for article in news_data.articles[:10] %}
+                        <li class="list-group-item">
+                            <h5>{{ article.title }}</h5>
+                            <p>{{ article.description }}</p>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">{{ article.source }}</span>
+                                <a href="{{ article.url }}" target="_blank" class="btn btn-sm btn-outline-primary">Read More</a>
+                            </div>
+                        </li>
+                    {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No news articles found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% elif analysis and 'error' in analysis %}
+<div class="alert alert-danger" role="alert">
+    Error: {{ analysis.error }}
+</div>
+{% elif not generate %}
+<div class="alert alert-info" role="alert">
+    <h4 class="alert-heading">Ready to analyze the markets?</h4>
+    <p>Select your analysis preferences above and click "Generate Analysis" to receive AI-powered insights on market indices and cryptocurrencies.</p>
+    <hr>
+    <p class="mb-0">Our analysis combines real-time market data with the latest financial news to provide actionable investment recommendations.</p>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('analysis-form');
+        const overlay = document.getElementById('loading-overlay');
+
+        console.log("🟢 DOM fully loaded");
+        console.log("🔍 URL params:", window.location.search);
+
+        if (form) {
+            form.addEventListener('submit', function () {
+                console.log("📝 Form submitted by user — showing overlay");
+                overlay.style.display = 'flex';
+            });
+        }
+
+        {% if generate and not analysis %}
+            console.log("⏳ generate=true but analysis is still empty — showing overlay");
+            overlay.style.display = 'flex';
+
+            setTimeout(() => {
+                if (overlay.style.display === 'flex') {
+                    console.warn("⚠️ Still loading after 15s — hiding overlay for safety");
+                    overlay.style.display = 'none';
+                }
+            }, 15000);
+        {% else %}
+            console.log("✅ Either not generating or analysis is ready — no overlay needed");
+        {% endif %}
+    });
+</script>
+
+
+
+
+{% if analysis and 'error' not in analysis and generate %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const indexCtx = document.getElementById('indexChart').getContext('2d');
+        
+        const indexData = {
+            labels: [{% for index in analysis.market_indices %}'{{ index.name }}',{% endfor %}],
+            datasets: [{
+                label: 'Change (%)',
+                data: [{% for index in analysis.market_indices %}{{ index.change_percent }},{% endfor %}],
+                backgroundColor: [
+                    {% for index in analysis.market_indices %}
+                    '{{ 'rgba(75, 192, 192, 0.2)' if index.change_percent > 0 else 'rgba(255, 99, 132, 0.2)' }}',
+                    {% endfor %}
+                ],
+                borderColor: [
+                    {% for index in analysis.market_indices %}
+                    '{{ 'rgba(75, 192, 192, 1)' if index.change_percent > 0 else 'rgba(255, 99, 132, 1)' }}',
+                    {% endfor %}
+                ],
+                borderWidth: 1
+            }]
+        };
+        
+        const indexChart = new Chart(indexCtx, {
+            type: 'bar',
+            data: indexData,
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Change (%)'
+                        }
+                    }
+                }
+            }
+        });
+        
+        const cryptoCtx = document.getElementById('cryptoChart').getContext('2d');
+        
+        const cryptoData = {
+            labels: [{% for crypto in analysis.cryptocurrencies %}'{{ crypto.name }}',{% endfor %}],
+            datasets: [{
+                label: 'Change (%)',
+                data: [{% for crypto in analysis.cryptocurrencies %}{{ crypto.change_percent }},{% endfor %}],
+                backgroundColor: [
+                    {% for crypto in analysis.cryptocurrencies %}
+                    '{{ 'rgba(75, 192, 192, 0.2)' if crypto.change_percent > 0 else 'rgba(255, 99, 132, 0.2)' }}',
+                    {% endfor %}
+                ],
+                borderColor: [
+                    {% for crypto in analysis.cryptocurrencies %}
+                    '{{ 'rgba(75, 192, 192, 1)' if crypto.change_percent > 0 else 'rgba(255, 99, 132, 1)' }}',
+                    {% endfor %}
+                ],
+                borderWidth: 1
+            }]
+        };
+        
+        const cryptoChart = new Chart(cryptoCtx, {
+            type: 'bar',
+            data: cryptoData,
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Change (%)'
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Financial News - {{ topic }}{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Financial News</h1>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                Search News
+            </div>
+            <div class="card-body">
+                <form method="get">
+                    <div class="mb-3">
+                        <label for="topic" class="form-label">Topic</label>
+                        <input type="text" class="form-control" id="topic" name="topic" value="{{ topic }}" required>
+                        <div class="form-text">Enter stock symbols, company names, or market topics</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Search News</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if articles and 'error' not in articles %}
+<div class="row">
+    <div class="col-12">
+        <h2>Latest News on "{{ topic }}"</h2>
+        <p>Found {{ articles.total_results }} articles. Showing most relevant.</p>
+        
+        {% for article in articles.articles %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">{{ article.title }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">{{ article.source }} - {{ article.published_at }}</h6>
+                <p class="card-text">{{ article.description }}</p>
+                <a href="{{ article.url }}" target="_blank" class="btn btn-sm btn-primary">Read Full Article</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% elif articles and 'error' in articles %}
+<div class="alert alert-danger" role="alert">
+    Error: {{ articles.error }}
+</div>
+{% endif %}
+{% endblock %}

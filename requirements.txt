@@ -1,0 +1,10 @@
+flask
+flask-wtf
+python-dotenv
+requests
+openai
+pandas
+matplotlib
+gunicorn
+alpaca-trade-api
+newsapi-python

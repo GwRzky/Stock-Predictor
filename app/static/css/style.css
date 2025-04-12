@@ -1,0 +1,183 @@
+/* Custom styles for the market analysis app - Modern Theme */
+
+:root {
+    --primary: #2c3e50;
+    --secondary: #3498db;
+    --accent: #1abc9c;
+    --light: #ecf0f1;
+    --dark: #2c3e50;
+    --success: #2ecc71;
+    --danger: #e74c3c;
+    --warning: #f39c12;
+    --info: #3498db;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --card-radius: 12px;
+    --transition: all 0.3s ease;
+  }
+  
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    color: #34495e;
+    background-color: #f5f7fa;
+    line-height: 1.6;
+  }
+  
+  .jumbotron {
+    padding: 3rem;
+    margin-bottom: 2.5rem;
+    background-color: var(--primary);
+    color: black;
+    border-radius: var(--card-radius);
+    box-shadow: var(--shadow);
+  }
+  
+  .analysis-content {
+    white-space: pre-line;
+    line-height: 1.8;
+  }
+  
+  .card {
+    margin-bottom: 25px;
+    border: none;
+    border-radius: var(--card-radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    background-color: white;
+    transition: var(--transition);
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+  }
+  
+  .card-header {
+    font-weight: 600;
+    padding: 1.2rem 1.5rem;
+    background-color: white;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    font-size: 1.1rem;
+    color: var(--primary);
+    transition: var(--transition);
+  }
+  
+  .card:hover .card-header {
+    background-color: rgba(236, 240, 241, 0.5);
+  }
+  
+  .card-body {
+    padding: 1.5rem;
+    animation: fadeIn 0.5s ease-in-out;
+  }
+  
+  /* Chart containers */
+  canvas {
+    width: 100% !important;
+    height: auto !important;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+  }
+  
+  /* Navbar styling */
+  .navbar {
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+    background-color: white;
+    padding: 0.8rem 1.5rem;
+  }
+  
+  .navbar-brand {
+    font-weight: 700;
+    color: white;
+  }
+  
+  .nav-link {
+    font-weight: 500;
+    color: white;
+    transition: var(--transition);
+  }
+  
+  .nav-link:hover {
+    color: var(--secondary);
+  }
+  
+  /* Footer styling */
+  footer {
+    margin-top: 60px;
+    padding: 30px 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    background-color: white;
+    color: var(--dark);
+  }
+  
+  /* Table styling */
+  .table-responsive {
+    overflow-x: auto;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+  }
+  
+  .table {
+    margin-bottom: 0;
+  }
+  
+  .table thead th {
+    border-top: none;
+    font-weight: 600;
+    color: var(--primary);
+    background-color: rgba(236, 240, 241, 0.5);
+  }
+  
+  .table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(236, 240, 241, 0.2);
+  }
+  
+  /* Form styling */
+  .form-control {
+    border-radius: 8px;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    transition: var(--transition);
+  }
+  
+  .form-control:focus {
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+  }
+  
+  .btn {
+    border-radius: 8px;
+    padding: 0.6rem 1.2rem;
+    font-weight: 500;
+    transition: var(--transition);
+  }
+  
+  .btn-primary {
+    background-color: var(--secondary);
+    border-color: var(--secondary);
+  }
+  
+  .btn-primary:hover {
+    background-color: #2980b9;
+    border-color: #2980b9;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Make charts pop with subtle border and background */
+  .chart-container {
+    background-color: white;
+    border-radius: var(--card-radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+  } 

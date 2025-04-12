@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}Market Data - {{ symbol }}{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Market Data for {{ symbol }}</h1>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                Search Stock
+            </div>
+            <div class="card-body">
+                <form method="get">
+                    <div class="mb-3">
+                        <label for="symbol" class="form-label">Stock Symbol</label>
+                        <input type="text" class="form-control" id="symbol" name="symbol" value="{{ symbol }}" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Get Data</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                Company Overview
+            </div>
+            <div class="card-body">
+                {% if data and 'overview' in data %}
+                <h5 class="card-title">{{ data.overview.get('Name', symbol) }}</h5>
+                <p class="card-text">{{ data.overview.get('Description', 'No description available') }}</p>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Sector: {{ data.overview.get('Sector', 'N/A') }}</li>
+                    <li class="list-group-item">Industry: {{ data.overview.get('Industry', 'N/A') }}</li>
+                    <li class="list-group-item">Market Cap: {{ data.overview.get('MarketCapitalization', 'N/A') }}</li>
+                    <li class="list-group-item">P/E Ratio: {{ data.overview.get('PERatio', 'N/A') }}</li>
+                </ul>
+                {% else %}
+                <p class="card-text">No company data available</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if data and 'error' not in data %}
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-4">
+            <div class="card-header">
+                Price History
+            </div>
+            <div class="card-body">
+                <canvas id="priceChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                Volume History
+            </div>
+            <div class="card-body">
+                <canvas id="volumeChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                Historical Data
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Close Price</th>
+                                <th>Volume</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in range(data.dates|length) %}
+                            <tr>
+                                <td>{{ data.dates[i] }}</td>
+                                <td>${{ "%.2f"|format(data.prices[i]) }}</td>
+                                <td>{{ data.volumes[i] }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% elif data and 'error' in data %}
+<div class="alert alert-danger" role="alert">
+    Error: {{ data.error }}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if data and 'error' not in data %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const priceCtx = document.getElementById('priceChart').getContext('2d');
+        const priceChart = new Chart(priceCtx, {
+            type: 'line',
+            data: {
+                labels: {{ data.dates|tojson|safe }},
+                datasets: [{
+                    label: 'Closing Price',
+                    data: {{ data.prices|default([])|tojson|safe }},
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 2,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: 'Price ($)'
+                        }
+                    }
+                }
+            }
+        });
+        
+        const volumeCtx = document.getElementById('volumeChart').getContext('2d');
+        const volumeChart = new Chart(volumeCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ data.dates|tojson|safe }},
+                datasets: [{
+                    label: 'Volume',
+                    data: {{ data.volumes|default([])|tojson|safe }},
+                    backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                    borderColor: 'rgba(255, 159, 64, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Volume'
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endif %}
+{% endblock %}

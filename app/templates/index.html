@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Market Analyzer - Home{% endblock %}
+
+{% block content %}
+<div class="jumbotron p-4 bg-light rounded-3">
+    <h1 class="display-4">Market Analysis with AI</h1>
+    <p class="lead">Get real-time market insights, news, and AI-powered recommendations for market indices and cryptocurrencies.</p>
+    <hr class="my-4">
+    <p>This application combines market data with news from various sources and uses OpenAI to analyze trends and provide investment insights.</p>
+    <div class="d-flex">
+        <a class="btn btn-primary btn-lg me-2" href="{{ url_for('main.analysis') }}" role="button">Market Analysis</a>
+        <a class="btn btn-outline-secondary btn-lg" href="{{ url_for('main.news') }}" role="button">News</a>
+    </div>
+</div>
+
+<div class="row mt-5">
+
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Financial News</h5>
+                <p class="card-text">Stay updated with the latest news that might impact your investments.</p>
+                <a href="{{ url_for('main.news') }}" class="btn btn-primary">Read News</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card mb-4 border-primary">
+            <div class="card-body">
+                <h5 class="card-title">Market Analysis</h5>
+                <p class="card-text">Get AI analysis of market indices and cryptocurrencies with buy/sell recommendations.</p>
+                <a href="{{ url_for('main.analysis') }}" class="btn btn-primary">Analyze Markets</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
