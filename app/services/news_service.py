@@ -9,7 +9,7 @@ def get_news(topic='stocks', days=7):
     api_key = current_app.config['NEWS_API_KEY']
     print(f"DEBUG - NEWS API KEY: {api_key}")  
     
-    newsapi = NewsApiClient(api_key="64aa3d8ad7104d58851f37793dda162e")
+    newsapi = NewsApiClient(api_key="INSERTAPIKEYHERE")
     
     end_date = datetime.now()
     start_date = end_date - timedelta(days=days)
